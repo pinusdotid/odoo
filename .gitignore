@@ -1,0 +1,9 @@
+# Abaikan semua file dan folder
+/*
+
+# Jangan abaikan .gitignore itu sendiri
+!.gitignore
+
+# Jangan abaikan folder .github beserta isinya
+!.github/
+!.github/**

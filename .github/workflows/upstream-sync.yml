@@ -1,0 +1,36 @@
+name: Sync Upstream
+
+on:
+  workflow_dispatch:       # bisa dijalankan manual
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "${{ secrets.SYNC_USERNAME }}"
+          git config --global user.email "${{ secrets.SYNC_USERNAME }}@users.noreply.github.com"
+
+      - name: Add upstream
+        env:
+          SYNC_USERNAME: ${{ secrets.SYNC_USERNAME }}
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          SOURCE_REPO: ${{ secrets.SOURCE_REPO }}
+        run: |
+          git remote add upstream https://${SYNC_USERNAME}:${SYNC_TOKEN}@github.com/${SOURCE_REPO}.git
+          git fetch upstream --tags
+
+      - name: Push all branches
+        env:
+          SYNC_USERNAME: ${{ secrets.SYNC_USERNAME }}
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          TARGET_REPO: ${{ secrets.TARGET_REPO }}
+        run: |
+          git push https://${SYNC_USERNAME}:${SYNC_TOKEN}@github.com/${TARGET_REPO}.git refs/remotes/upstream/*:refs/heads/* --force
+          git push https://${SYNC_USERNAME}:${SYNC_TOKEN}@github.com/${TARGET_REPO}.git --tags --force
